@@ -7,6 +7,8 @@ module Betterific
     TAGS_BASE_URL = "#{BASE_URL}/tags".freeze
     USERS_BASE_URL = "#{BASE_URL}/users".freeze
 
+    SEARCH_BASE_URL = "#{BASE_URL}/search".freeze
+
     PROTO_PACKAGE_NAME = 'BetterIf'.freeze
     TMP_DIR = File.expand_path(File.join('.', 'tmp'))
   end

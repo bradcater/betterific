@@ -41,5 +41,16 @@ module Betterific
         raise "No ids given."
       end
     end
+
+    def self.search(opts={})
+      raise "No namespace given." if opts[:namespace].nil?
+      raise "No q given." if opts[:q].nil?
+      raise "q is blank." if opts[:q].blank?
+      if [:betterifs, 'betterifs', :tags, 'tags', :users, 'users', :all, 'all'].include?(opts[:namespace])
+        return get_json("#{SEARCH_BASE_URL}/#{opts[:namespace]}?q=#{opts[:q]}")
+      else
+        raise "Invalid namespace: #{opts[:namespace]}"
+      end
+    end
   end
 end

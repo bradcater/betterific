@@ -4,44 +4,46 @@ describe Betterific::JsonClient do
   [:most_popular, :most_recent].each do |filter|
     it "should load #{filter} betterifs" do
       j = Betterific::JsonClient.betterifs(filter)
-      ensure_valid_betterif_json_response(j, :big => true)
+      ensure_valid_json_response(j, :betterifs => true, :big => true)
     end
   end
   it "should load betterifs via ids" do
-    j = Betterific::JsonClient.betterifs(:ids => 224)
-    ensure_valid_betterif_json_response(j)
-    j['total_results'].should == 1
-    j['num_results'].should == 1
-    j['betterifs'].size.should == 1
-    j['betterifs'].first.has_key?('tags').should == true
-    j['betterifs'].first['tags'].is_a?(Array).should == true
-    j['betterifs'].first.has_key?('user').should == true
-    j['betterifs'].first['user'].is_a?(Hash).should == true
+    j = Betterific::JsonClient.betterifs(:ids => BETTERIF_ID)
+    ensure_valid_json_response(j, :betterifs => true)
+    j['betterifs'].first['id'].should == BETTERIF_ID
   end
   it "should load tags via ids" do
-    betterific_tag_id = 400973
-    j = Betterific::JsonClient.tags(:ids => betterific_tag_id)
-    j.is_a?(Hash).should == true
-    j.has_key?('total_results').should == true
-    j['total_results'].should == 1
-    j.has_key?('num_results').should == true
-    j['num_results'].should == 1
-    j.has_key?('tags').should == true
-    j['tags'].size.should == 1
-    j['tags'].first.has_key?('id').should == true
-    j['tags'].first['id'].should == betterific_tag_id
+    j = Betterific::JsonClient.tags(:ids => BETTERIFIC_TAG_ID)
+    ensure_valid_json_response(j, :tags => true)
+    j['tags'].first['id'].should == BETTERIFIC_TAG_ID
   end
   it "should load users via ids" do
-    user_id = 2
-    j = Betterific::JsonClient.users(:ids => user_id)
-    j.is_a?(Hash).should == true
-    j.has_key?('total_results').should == true
-    j['total_results'].should == 1
-    j.has_key?('num_results').should == true
-    j['num_results'].should == 1
-    j.has_key?('users').should == true
-    j['users'].size.should == 1
-    j['users'].first.has_key?('id').should == true
-    j['users'].first['id'].should == user_id
+    j = Betterific::JsonClient.users(:ids => USER_ID)
+    ensure_valid_json_response(j, :users => true)
+    j['users'].first['id'].should == USER_ID
+  end
+
+  search_kinds = %w{betterifs tags users}
+  search_kinds.each do |kind|
+    it "should load search for #{kind}" do
+      q = random_query
+      j = Betterific::JsonClient.search(:namespace => kind, :q => q)
+      j.has_key?('q').should == true
+      j['q'].should == q
+      ensure_valid_json_response(j[kind], kind.to_sym => true, :allow_empty => true)
+      search_kinds.each do |other_kind|
+        next if kind == other_kind
+        j[other_kind].present?.should == false
+      end
+    end
+  end
+  it "should load search for all" do
+    q = random_query
+    j = Betterific::JsonClient.search(:namespace => :all, :q => q)
+    j.has_key?('q').should == true
+    j['q'].should == q
+    search_kinds.each do |kind|
+      ensure_valid_json_response(j[kind], kind.to_sym => true, :allow_empty => true)
+    end
   end
 end

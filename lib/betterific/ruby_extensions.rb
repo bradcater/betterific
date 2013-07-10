@@ -10,6 +10,12 @@ end
 #   https://www.ruby-forum.com/topic/4411006
 class String
 
+  unless ''.respond_to?(:blank?)
+    def blank?
+      self.strip.size == 0
+    end
+  end
+
   unless ''.respond_to?(:camelize)
     def camelize
       self.split("_").each {|s| s.capitalize! }.join("")

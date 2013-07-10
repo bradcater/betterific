@@ -5,34 +5,49 @@ if defined?(Betterific::ProtobufClient)
     [:most_popular, :most_recent].each do |filter|
       it "should load #{filter} betterifs" do
         bar = Betterific::ProtobufClient.betterifs(filter)
-        ensure_valid_betterif_protobuf_response(bar, :big => true)
+        bar.is_a?(BetterIf::BetterifApiResponse).should == true
+        ensure_valid_protobuf_response(bar, :big => true)
       end
     end
     it "should load betterifs via ids" do
-      bar = Betterific::ProtobufClient.betterifs(:ids => 224)
-      ensure_valid_betterif_protobuf_response(bar)
+      bar = Betterific::ProtobufClient.betterifs(:ids => BETTERIF_ID)
+      bar.is_a?(BetterIf::BetterifApiResponse).should == true
+      ensure_valid_protobuf_response(bar, :betterifs => true)
+      bar.betterifs.first.id.should == BETTERIF_ID
     end
     it "should load tags via ids" do
-      betterific_tag_id = 400973
-      bar = Betterific::ProtobufClient.tags(:ids => betterific_tag_id)
+      bar = Betterific::ProtobufClient.tags(:ids => BETTERIFIC_TAG_ID)
       bar.is_a?(BetterIf::TagApiResponse).should == true
-      bar.total_results.should == 1
-      bar.num_results.should == 1
-      bar.tags.size.should == 1
-      bar.tags.is_a?(ProtocolBuffers::RepeatedField).should == true
-      bar.tags.first.is_a?(BetterIf::Tag)
-      bar.tags.first.id.should == betterific_tag_id
+      ensure_valid_protobuf_response(bar, :tags => true)
+      bar.tags.first.id.should == BETTERIFIC_TAG_ID
     end
     it "should load users via ids" do
-      user_id = 2
-      bar = Betterific::ProtobufClient.users(:ids => user_id)
+      bar = Betterific::ProtobufClient.users(:ids => USER_ID)
       bar.is_a?(BetterIf::UserApiResponse).should == true
-      bar.total_results.should == 1
-      bar.num_results.should == 1
-      bar.users.size.should == 1
-      bar.users.is_a?(ProtocolBuffers::RepeatedField).should == true
-      bar.users.first.is_a?(BetterIf::User)
-      bar.users.first.id.should == user_id
+      ensure_valid_protobuf_response(bar, :users => true)
+      bar.users.first.id.should == USER_ID
+    end
+
+    search_kinds = %w{betterifs tags users}
+    search_kinds.each do |kind|
+      it "should load search for #{kind}" do
+        q = random_query
+        bar = Betterific::ProtobufClient.search(:namespace => kind, :q => q)
+        bar.q.should == q
+        ensure_valid_protobuf_response(bar.send(kind), kind.to_sym => true, :allow_empty => true)
+        search_kinds.each do |other_kind|
+          next if kind == other_kind
+          bar.send(other_kind).send(other_kind).size.should == 0
+        end
+      end
+    end
+    it "should load search for all" do
+      q = random_query
+      bar = Betterific::ProtobufClient.search(:namespace => :all, :q => q)
+      bar.q.should == q
+      search_kinds.each do |kind|
+        ensure_valid_protobuf_response(bar.send(kind), kind.to_sym => true, :allow_empty => true)
+      end
     end
   end
 end
