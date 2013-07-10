@@ -25,6 +25,13 @@ module Betterific
         raise "No filter and no ids given."
       end
     end
-  end
 
+    def self.tags(opts={})
+      if opts[:ids]
+        return get_json("#{TAGS_BASE_URL}?tags[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
+      else
+        raise "No ids given."
+      end
+    end
+  end
 end
