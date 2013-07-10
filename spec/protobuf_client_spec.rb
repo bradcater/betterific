@@ -23,5 +23,16 @@ if defined?(Betterific::ProtobufClient)
       bar.tags.first.is_a?(BetterIf::Tag)
       bar.tags.first.id.should == betterific_tag_id
     end
+    it "should load users via ids" do
+      user_id = 2
+      bar = Betterific::ProtobufClient.users(:ids => user_id)
+      bar.is_a?(BetterIf::UserApiResponse).should == true
+      bar.total_results.should == 1
+      bar.num_results.should == 1
+      bar.users.size.should == 1
+      bar.users.is_a?(ProtocolBuffers::RepeatedField).should == true
+      bar.users.first.is_a?(BetterIf::User)
+      bar.users.first.id.should == user_id
+    end
   end
 end

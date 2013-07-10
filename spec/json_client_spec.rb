@@ -31,4 +31,17 @@ describe Betterific::JsonClient do
     j['tags'].first.has_key?('id').should == true
     j['tags'].first['id'].should == betterific_tag_id
   end
+  it "should load users via ids" do
+    user_id = 2
+    j = Betterific::JsonClient.users(:ids => user_id)
+    j.is_a?(Hash).should == true
+    j.has_key?('total_results').should == true
+    j['total_results'].should == 1
+    j.has_key?('num_results').should == true
+    j['num_results'].should == 1
+    j.has_key?('users').should == true
+    j['users'].size.should == 1
+    j['users'].first.has_key?('id').should == true
+    j['users'].first['id'].should == user_id
+  end
 end

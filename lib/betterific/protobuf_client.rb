@@ -90,5 +90,13 @@ module Betterific
         raise "No ids given."
       end
     end
+
+    def self.users(opts={})
+      if opts[:ids]
+        return get_protobuf("#{USERS_BASE_URL}?users[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
+      else
+        raise "No ids given."
+      end
+    end
   end
 end
