@@ -11,6 +11,8 @@ rescue
 end
 
 module Betterific
+  # See a human-readable form of this gem's current version.
+  #
   def self.version_string
     "Betterific version #{Betterific::VERSION}"
   end

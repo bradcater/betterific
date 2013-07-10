@@ -5,7 +5,7 @@ module Betterific
     include ::Betterific::ClientConstants
     class << self
       include ::Betterific::ClientHelpers
-      def get_json(url, params={})
+      def get_json(url, params={}) #:nodoc:
         uri = URI(url)
         unless params.empty?
           uri.query = URI.encode_www_form(params)
@@ -14,6 +14,17 @@ module Betterific
       end; private :get_json
     end
 
+    # Get a list of betterifs.
+    #
+    # ==== Parameters
+    #
+    # * +opts+ - If most_popular, gets the most popular betterifs of the last
+    #   week.
+    #
+    #   If most_recent, gets the most recent betterifs.
+    #
+    #   {:ids => [id0, id1, ..., idx]} specifies the ids of the betterif(s) to
+    #   return.
     def self.betterifs(opts={})
       if [:most_popular, 'most_popular'].include?(opts) || (opts.is_a?(Hash) && [:most_popular, 'most_popular'].include?(opts[:filter]))
         return get_json("#{BETTERIFS_BASE_URL}/most-popular")
@@ -26,6 +37,12 @@ module Betterific
       end
     end
 
+    # Get a list of tags.
+    #
+    # ==== Parameters
+    #
+    # * +opts+ - {:ids => [id0, id1, ..., idx]} specifies the ids of the
+    #   tag(s) to return.
     def self.tags(opts={})
       if opts[:ids]
         return get_json("#{TAGS_BASE_URL}?tags[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
@@ -34,6 +51,12 @@ module Betterific
       end
     end
 
+    # Get a list of users.
+    #
+    # ==== Parameters
+    #
+    # * +opts+ - {:ids => [id0, id1, ..., idx]} specifies the ids of the
+    #   user(s) to return.
     def self.users(opts={})
       if opts[:ids]
         return get_json("#{USERS_BASE_URL}?users[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
@@ -42,6 +65,14 @@ module Betterific
       end
     end
 
+    # Search for betterifs, tags, and users.
+    #
+    # ==== Parameters
+    #
+    # * +opts+ - {:namespace => (all|betterifs|tags|users)} specifies the type
+    #   of object(s) to return.
+    #
+    #   {:q => <query>} specifies the search query.
     def self.search(opts={})
       raise "No namespace given." if opts[:namespace].nil?
       raise "No q given." if opts[:q].nil?

@@ -6,10 +6,13 @@ module Betterific
     include ::Betterific::ClientConstants
     class << self
       include ::Betterific::ClientHelpers
+      # Cache of the last time a schema was refreshed by name.
       LAST_REFRESH = {}
+      # Cache of schemas by URI.
       PROTO_SCHEMA_CACHE = {}
+      # How many seconds to keep a schema before refreshing.
       PROTO_TTL_SECONDS = 60
-      def compile_and_load_string(kode, url)
+      def compile_and_load_string(kode, url) #:nodoc
         unless Dir.exists?(self::TMP_DIR)
           Dir.mkdir(self::TMP_DIR, 0700)
         end
@@ -30,7 +33,7 @@ module Betterific
         end
       end; private :compile_and_load_string
 
-      def fetch_and_save_dependencies(kode, url)
+      def fetch_and_save_dependencies(kode, url) #:nodoc
         kode.scan(/import\s+'([^']+)';/).map do |imp|
           imp = imp.first
           imp_url = [url.split(/\//)[0..-2], imp].flatten.join('/')
@@ -46,7 +49,7 @@ module Betterific
         end.flatten.uniq
       end; private :fetch_and_save_dependencies
       
-      def get_namespaced_class(klass_string, o=nil)
+      def get_namespaced_class(klass_string, o=nil) #:nodoc
         return o if klass_string == nil
         unless klass_string.is_a?(Array)
           klass_string = klass_string.split(/::/)
@@ -57,7 +60,7 @@ module Betterific
         get_namespaced_class(klass_string[1..-1], o)
       end; private :get_namespaced_class
 
-      def get_protobuf(url, params={})
+      def get_protobuf(url, params={}) #:nodoc
         proto_url = if url =~ /\?/
           url.gsub(/\?/, '.protobuf?')
         else
@@ -80,6 +83,17 @@ module Betterific
       end; private :get_protobuf
     end
 
+    # Get a list of betterifs.
+    #
+    # ==== Parameters
+    #
+    # * +opts+ - If most_popular, gets the most popular betterifs of the last
+    #   week.
+    #
+    #   If most_recent, gets the most recent betterifs.
+    #
+    #   {:ids => [id0, id1, ..., idx]} specifies the ids of the betterif(s) to
+    #   return.
     def self.betterifs(opts={})
       if [:most_popular, 'most_popular'].include?(opts) || (opts.is_a?(Hash) && [:most_popular, 'most_popular'].include?(opts[:filter]))
         return get_protobuf("#{BETTERIFS_BASE_URL}/most-popular")
@@ -92,6 +106,12 @@ module Betterific
       end
     end
 
+    # Get a list of tags.
+    #
+    # ==== Parameters
+    #
+    # * +opts+ - {:ids => [id0, id1, ..., idx]} specifies the ids of the
+    #   tag(s) to return.
     def self.tags(opts={})
       if opts[:ids]
         return get_protobuf("#{TAGS_BASE_URL}?tags[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
@@ -100,6 +120,12 @@ module Betterific
       end
     end
 
+    # Get a list of users.
+    #
+    # ==== Parameters
+    #
+    # * +opts+ - {:ids => [id0, id1, ..., idx]} specifies the ids of the
+    #   user(s) to return.
     def self.users(opts={})
       if opts[:ids]
         return get_protobuf("#{USERS_BASE_URL}?users[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
@@ -108,6 +134,14 @@ module Betterific
       end
     end
 
+    # Search for betterifs, tags, and users.
+    #
+    # ==== Parameters
+    #
+    # * +opts+ - {:namespace => (all|betterifs|tags|users)} specifies the type
+    #   of object(s) to return.
+    #
+    #   {:q => <query>} specifies the search query.
     def self.search(opts={})
       raise "No namespace given." if opts[:namespace].nil?
       raise "No q given." if opts[:q].nil?
