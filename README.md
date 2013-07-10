@@ -56,6 +56,18 @@ You can search for betterifs, tags, users, or all of these using
 
 Changing the _:namespace_ parameter will change the type of data returned.
 
+### Pagination
+
+All client methods take pagination params _:page_ and *:per_page*. In the case
+of most popular and most recent betterifs, the filter must be changed to a Hash
+parameter like so
+
+    Betterific::JsonClient.betterifs(:filter => :most_popular, :page => 2, :per_page => 10)
+
+and
+
+    Betterific::JsonClient.betterifs(:filter => :most_recent, :page => 2, :per_page => 10)
+
 ### Using Protocol Buffers
 
 If you have
