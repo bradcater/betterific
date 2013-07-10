@@ -1,8 +1,8 @@
 module Betterific
   module ClientConstants
     # The base URL for the Betterific API.
-    BASE_URL = 'http://localhost:3000/api'.freeze # :nodoc:
-    #BASE_URL = 'http://betterific.com/api'.freeze # :nodoc:
+    BASE_URL = 'http://localhost:3000/api'.freeze
+    #BASE_URL = 'http://betterific.com/api'.freeze #:nodoc:
 
     # The base URL to GET betterifs.
     BETTERIFS_BASE_URL = "#{BASE_URL}/betterifs".freeze

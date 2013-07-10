@@ -60,15 +60,16 @@ module Betterific
         get_namespaced_class(klass_string[1..-1], o)
       end; private :get_namespaced_class
 
-      def get_protobuf(url, params={}) #:nodoc
+      def get_protobuf(url, opts={}, url_params={}) #:nodoc
+        url = add_page_params(url, page_params_from_opts(opts))
         proto_url = if url =~ /\?/
           url.gsub(/\?/, '.protobuf?')
         else
           "#{url}.protobuf"
         end
         uri = URI(proto_url)
-        unless params.empty?
-          uri.query = URI.encode_www_form(params)
+        unless url_params.empty?
+          uri.query = URI.encode_www_form(url_params)
         end
         res = get_http(uri)
         schema_uri = URI(res.header['X-Protobuf-Schema'])

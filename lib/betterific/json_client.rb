@@ -5,10 +5,11 @@ module Betterific
     include ::Betterific::ClientConstants
     class << self
       include ::Betterific::ClientHelpers
-      def get_json(url, params={}) #:nodoc:
+      def get_json(url, opts={}, url_params={}) #:nodoc:
+        url = add_page_params(url, page_params_from_opts(opts))
         uri = URI(url)
-        unless params.empty?
-          uri.query = URI.encode_www_form(params)
+        unless url_params.empty?
+          uri.query = URI.encode_www_form(url_params)
         end
         JSON.parse(get_http(uri).body)
       end; private :get_json

@@ -21,10 +21,12 @@ def ensure_valid_json_response(j, opts={})
     else
       j['betterifs'].size.should >= (opts[:allow_empty] ? 0 : 1)
     end
-    j['betterifs'].first.has_key?('tags').should == true
-    j['betterifs'].first['tags'].is_a?(Array).should == true
-    j['betterifs'].first.has_key?('user').should == true
-    j['betterifs'].first['user'].is_a?(Hash).should == true
+    unless opts[:allow_empty]
+      j['betterifs'].first.has_key?('tags').should == true
+      j['betterifs'].first['tags'].is_a?(Array).should == true
+      j['betterifs'].first.has_key?('user').should == true
+      j['betterifs'].first['user'].is_a?(Hash).should == true
+    end
   end
   if opts[:tags]
     j.has_key?('tags').should == true
@@ -33,7 +35,9 @@ def ensure_valid_json_response(j, opts={})
     else
       j['tags'].size.should >= (opts[:allow_empty] ? 0 : 1)
     end
-    j['tags'].first.has_key?('id').should == true
+    unless opts[:allow_empty]
+      j['tags'].first.has_key?('id').should == true
+    end
   end
   if opts[:users]
     j.has_key?('users').should == true
@@ -42,7 +46,9 @@ def ensure_valid_json_response(j, opts={})
     else
       j['users'].size.should >= (opts[:allow_empty] ? 0 : 1)
     end
-    j['users'].first.has_key?('id').should == true
+    unless opts[:allow_empty]
+      j['users'].first.has_key?('id').should == true
+    end
   end
 end
 
@@ -64,11 +70,13 @@ if defined?(Betterific::ProtobufClient)
       else
         bar.betterifs.size.should >= (opts[:allow_empty] ? 0 : 1)
       end
-      bar.betterifs.first.tags.is_a?(ProtocolBuffers::RepeatedField).should == true
-      if bar.betterifs.first.tags.size > 0
-        bar.betterifs.first.tags.first.is_a?(BetterIf::Tag).should == true
+      unless opts[:allow_empty]
+        bar.betterifs.first.tags.is_a?(ProtocolBuffers::RepeatedField).should == true
+        if bar.betterifs.first.tags.size > 0
+          bar.betterifs.first.tags.first.is_a?(BetterIf::Tag).should == true
+        end
+        bar.betterifs.first.user.is_a?(BetterIf::User).should == true
       end
-      bar.betterifs.first.user.is_a?(BetterIf::User).should == true
     end
     if opts[:tags]
       if opts[:big]

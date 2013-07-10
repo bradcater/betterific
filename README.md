@@ -54,7 +54,7 @@ You can search for betterifs, tags, users, or all of these using
 
     Betterific::JsonClient.search(:namespace => :all, :q => 'my query')
 
-Changing the :namespace parameter will change the type of data returned.
+Changing the _:namespace_ parameter will change the type of data returned.
 
 ### Using Protocol Buffers
 
@@ -66,13 +66,22 @@ Betterific::JsonClient. This will greatly improve performance, as
 optimized.
 
 The Betterific::ProtobufClient responds to the same methods as the
-Betterific::JsonClient, so it's easy to exchange one for the other at will. Just
-don't forget that while JSON uses access methods like
+Betterific::JsonClient, so it's easy to exchange one for the other at will. For
+example,
+
+    Betterific::JsonClient.users(:id => [2])
+
+and
+
+    Betterific::ProtobufClient.users(:id => [2])
+
+return the same data. Just don't forget that while JSON uses access methods
+like
 
     my_json['key']
 
 the [ruby-protocol-buffers](https://github.com/codekitchen/ruby-protocol-buffers)
-has its own auto-generated classes that create methods like
+gem has its own auto-generated classes that create methods like
 
     my_protobuf_instance.key
 
