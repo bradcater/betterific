@@ -1,3 +1,11 @@
+class Object
+  unless nil.respond_to?(:present?)
+    def present?
+      !self.nil?
+    end
+  end
+end
+
 # Adapted from
 #   https://www.ruby-forum.com/topic/4411006
 class String

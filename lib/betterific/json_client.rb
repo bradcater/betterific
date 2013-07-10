@@ -19,8 +19,11 @@ module Betterific
         return get_json("#{BETTERIFS_BASE_URL}/most-popular")
       elsif [:most_recent, 'most_recent'].include?(opts) || (opts.is_a?(Hash) && [:most_recent, 'most_recent'].include?(opts[:filter]))
         return get_json("#{BETTERIFS_BASE_URL}/most-recent")
+      elsif opts[:ids]
+        return get_json("#{BETTERIFS_BASE_URL}?betterifs[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
+      else
+        raise "No filter and no ids given."
       end
-      1
     end
   end
 

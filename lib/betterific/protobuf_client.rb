@@ -52,7 +52,12 @@ module Betterific
       end; private :get_namespaced_class
 
       def get_protobuf(url, params={})
-        uri = URI("#{url}.protobuf")
+        proto_url = if url =~ /\?/
+          url.gsub(/\?/, '.protobuf?')
+        else
+          "#{url}.protobuf"
+        end
+        uri = URI(proto_url)
         unless params.empty?
           uri.query = URI.encode_www_form(params)
         end
@@ -71,8 +76,11 @@ module Betterific
         return get_protobuf("#{BETTERIFS_BASE_URL}/most-popular")
       elsif [:most_recent, 'most_recent'].include?(opts) || (opts.is_a?(Hash) && [:most_recent, 'most_recent'].include?(opts[:filter]))
         return get_protobuf("#{BETTERIFS_BASE_URL}/most-recent")
+      elsif opts[:ids]
+        return get_protobuf("#{BETTERIFS_BASE_URL}?betterifs[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
+      else
+        raise "No filter and no ids given."
       end
-      1
     end
   end
 
