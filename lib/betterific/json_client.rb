@@ -1,20 +1,16 @@
 require 'json'
-require 'net/http'
 
 module Betterific
   module JsonClient
     include ::Betterific::ClientConstants
     class << self
+      include ::Betterific::ClientHelpers
       def get_json(url, params={})
         uri = URI(url)
         unless params.empty?
           uri.query = URI.encode_www_form(params)
         end
-        res = Net::HTTP.get_response(uri)
-        unless res.is_a?(Net::HTTPSuccess)
-          raise "Could not connect to #{uri}"
-        end
-        JSON.parse(res.body)
+        JSON.parse(get_http(uri).body)
       end; private :get_json
     end
 
