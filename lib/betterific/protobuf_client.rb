@@ -6,6 +6,9 @@ module Betterific
     include ::Betterific::ClientConstants
     class << self
       include ::Betterific::ClientHelpers
+      LAST_REFRESH = {}
+      PROTO_SCHEMA_CACHE = {}
+      PROTO_TTL_SECONDS = 60
       def compile_and_load_string(kode, url)
         unless Dir.exists?(self::TMP_DIR)
           Dir.mkdir(self::TMP_DIR, 0700)
@@ -32,11 +35,14 @@ module Betterific
           imp = imp.first
           imp_url = [url.split(/\//)[0..-2], imp].flatten.join('/')
           uri = URI(imp_url)
-          imp_content = get_http(URI(imp_url)).body
-          File.open(File.join(self::TMP_DIR, imp), 'w') do |f|
-            f.write(imp_content)
+          if LAST_REFRESH[uri].nil? || (LAST_REFRESH[uri] < Time.now - PROTO_TTL_SECONDS)
+            PROTO_SCHEMA_CACHE[uri] = get_http(URI(imp_url))
+            File.open(File.join(self::TMP_DIR, imp), 'w') do |f|
+              f.write(PROTO_SCHEMA_CACHE[uri].body)
+            end
+            LAST_REFRESH[uri] = Time.now
           end
-          fetch_and_save_dependencies(imp_content, url) + [imp]
+          fetch_and_save_dependencies(PROTO_SCHEMA_CACHE[uri].body, url) + [imp]
         end.flatten.uniq
       end; private :fetch_and_save_dependencies
       
@@ -63,9 +69,12 @@ module Betterific
         end
         res = get_http(uri)
         schema_uri = URI(res.header['X-Protobuf-Schema'])
-        schema_res = get_http(schema_uri)
+        if PROTO_SCHEMA_CACHE[schema_uri].nil? || LAST_REFRESH[schema_uri] < Time.now - PROTO_TTL_SECONDS
+          PROTO_SCHEMA_CACHE[schema_uri] = get_http(schema_uri)
+          LAST_REFRESH[schema_uri] = Time.now
+        end
         proto_name = schema_uri.to_s.split(/\//).last
-        compile_and_load_string(schema_res.body, schema_uri.to_s)
+        compile_and_load_string(PROTO_SCHEMA_CACHE[schema_uri].body, schema_uri.to_s)
         proto_klass = get_namespaced_class("#{self::PROTO_PACKAGE_NAME}::#{proto_name.gsub(/\.proto$/, '').camelize}")
         proto_klass.parse(res.body)
       end; private :get_protobuf
