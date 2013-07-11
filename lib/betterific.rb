@@ -10,6 +10,8 @@ else
   puts 'Betterific: Install the ruby-protocol-buffers gem to use Betterific::ProtobufClient.'
 end
 
+require 'betterific/client'
+
 module Betterific
   # See a human-readable form of this gem's current version.
   #

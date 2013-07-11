@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.authors       = ["Brad Cater"]
   gem.email         = ["bradcater@gmail.com"]
   gem.description   = %q{This gem is a Ruby interface to the Betterific API.}
-  gem.summary       = %q{This gem is a Ruby interface to the Betterific API. It provides support via JSON, RSS, XML, and Protocol Buffers.}
+  gem.summary       = %q{This gem is a Ruby interface to the Betterific API. It provides support via Protocol Buffers if the ruby-protocol-buffers gem is installed; otherwise, it uses JSON.}
   gem.homepage      = "https://github.com/bradcater/betterific"
 
   gem.files         = `git ls-files`.split($\)
