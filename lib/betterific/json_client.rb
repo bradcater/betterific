@@ -1,3 +1,4 @@
+require 'hashie'
 require 'json'
 
 module Betterific
@@ -11,7 +12,7 @@ module Betterific
         unless url_params.empty?
           uri.query = URI.encode_www_form(url_params)
         end
-        JSON.parse(get_http(uri).body)
+        Hashie::Mash.new(JSON.parse(get_http(uri).body))
       end; private :get_json
     end
 

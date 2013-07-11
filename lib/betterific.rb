@@ -4,10 +4,10 @@ require 'betterific/ruby_extensions'
 require 'betterific/version'
 
 require 'betterific/json_client'
-begin
+if Gem::Specification.find_all_by_name('ruby-protocol-buffers').any?
   require 'betterific/protobuf_client'
-rescue
-  puts 'Install the ruby-protocol-buffers gem to use Betterific::ProtobufClient.'
+else
+  puts 'Betterific: Install the ruby-protocol-buffers gem to use Betterific::ProtobufClient.'
 end
 
 module Betterific
