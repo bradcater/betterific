@@ -1,10 +1,10 @@
 require 'betterific'
 
-BETTERIFIC_TAG_ID = 400937
-BETTERIF_ID = 224
-USER_ID = 2
+BETTERIFIC_TAG_ID = 400937 #:nodoc
+BETTERIF_ID = 224 #:nodoc
+USER_ID = 2 #:nodoc
 
-SEARCH_KINDS = %w{betterifs tags users}.freeze
+SEARCH_KINDS = %w{betterifs tags users}.freeze #:nodoc
 
 def ensure_valid_api_response(resp, client_modjule, opts={})
   if opts[:big]
