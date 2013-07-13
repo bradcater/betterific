@@ -18,6 +18,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'hashie', '~> 2.0.5'
   gem.add_dependency 'json', '~> 1.8.0'
 
-  gem.add_development_dependency 'ruby-protocol-buffers', '~> 2.4.0'
+  gem.add_development_dependency 'ruby-protocol-buffers', '~> 1.4.0'
   gem.add_development_dependency 'rspec', '~> 2.13.0'
 end
