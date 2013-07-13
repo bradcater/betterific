@@ -112,7 +112,7 @@ def client_test(modjule)
   
         SEARCH_KINDS.each do |kind|
           it "should load search for #{kind}" do
-            q = random_query
+            q = [random_query, random_query].join(' ')
             resp = modjule.search(page_params.merge(:namespace => kind, :q => q))
             resp.q.should == q
             ensure_valid_api_response(resp.send(kind), kind.to_sym => true, :allow_empty => true)
@@ -125,7 +125,7 @@ def client_test(modjule)
           end
         end
         it "should load search for all" do
-          q = random_query
+          q = [random_query, random_query].join(' ')
           resp = modjule.search(page_params.merge(:namespace => :all, :q => q))
           resp.q.should == q
           SEARCH_KINDS.each do |kind|

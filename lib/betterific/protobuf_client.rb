@@ -148,7 +148,7 @@ module Betterific
       raise "No q given." if opts[:q].nil?
       raise "q is blank." if opts[:q].blank?
       if [:betterifs, 'betterifs', :tags, 'tags', :users, 'users', :all, 'all'].include?(opts[:namespace])
-        return get_protobuf("#{SEARCH_BASE_URL}/#{opts[:namespace]}?q=#{opts[:q]}")
+        return get_protobuf("#{SEARCH_BASE_URL}/#{opts[:namespace]}", {}, :q => opts[:q])
       else
         raise "Invalid namespace: #{opts[:namespace]}"
       end
