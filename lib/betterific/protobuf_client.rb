@@ -113,12 +113,27 @@ module Betterific
     #
     # * +opts+ - {:ids => [id0, id1, ..., idx]} specifies the ids of the
     #   comment(s) to return.
+    # * +opts+ - {:betterif_ids => [id0, id1, ..., idx]} specifies the ids of
+    #   the betterif(s) for which to return comments. This is ignored if :ids
+    #   is given.
+    # * +opts+ - {:order => (least_recent|most_recent)} fetches either the
+    #   least recent or most recent comments. This is ignored unless
+    #   :betterif_ids is given.
     def self.comments(opts={})
-      if opts[:ids]
-        return get_protobuf("#{COMMENTS_BASE_URL}?comments[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
-      else
-        raise "No ids given."
+      if opts[:ids].nil? && opts[:betterif_ids].nil?
+        raise "No ids or betterif_ids given."
       end
+      unless opts[:order].nil?
+        unless %w{least_recent most_recent}.include?(opts[:order])
+          raise "Invalid order given."
+        end
+      end
+      params = [
+        opts[:ids] ? "comments[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}" : nil,
+        opts[:betterif_ids] ? "betterifs[ids]=#{Array(opts[:betterif_ids]).map(&:to_s).join(',')}" : nil,
+        opts[:order] ? "order=#{opts[:order]}" : nil
+      ].compact
+      get_protobuf("#{COMMENTS_BASE_URL}?#{params.join('&')}")
     end
 
     # Get a list of tags.

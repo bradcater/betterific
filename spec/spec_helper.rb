@@ -1,4 +1,5 @@
 require 'betterific'
+require 'time'
 
 BETTERIFIC_COMMENT_ID = 121 #:nodoc
 BETTERIFIC_TAG_ID = 400937 #:nodoc
@@ -120,6 +121,31 @@ def client_test(modjule)
           ensure_valid_api_response(resp, modjule, :comments => true, :allow_empty => !page_params.empty?)
           if page_params.empty?
             resp.comments.first.id.should == BETTERIFIC_COMMENT_ID
+          end
+        end
+        it "should load comments via betterif_ids" do
+          resp = modjule.comments(page_params.merge(:betterif_ids => BETTERIF_ID))
+          ensure_valid_api_response(resp, modjule, :comments => true, :allow_empty => !page_params.empty?)
+          if page_params.empty?
+            resp.comments.first.betterif.id.should == BETTERIF_ID
+          end
+        end
+        %w{least_recent most_recent}.each do |order|
+          it "should load comments via betterif_ids and #{order}" do
+            resp = modjule.comments(page_params.merge(:betterif_ids => BETTERIF_ID, :order => order))
+            ensure_valid_api_response(resp, modjule, :comments => true, :allow_empty => !page_params.empty?)
+            if page_params.empty?
+              resp.comments.first.betterif.id.should == BETTERIF_ID
+              if resp.comments.size > 1
+                first_comment_created_at = Time.parse(resp.comments.first.created_at)
+                last_comment_created_at = Time.parse(resp.comments.last.created_at)
+                if order == 'least_recent'
+                  first_comment_created_at.should < last_comment_created_at
+                else
+                  first_comment_created_at.should > last_comment_created_at
+                end
+              end
+            end
           end
         end
         it "should load tags via ids" do

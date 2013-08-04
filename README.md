@@ -55,13 +55,24 @@ you can use
 
     Betterific::Client.betterifs(:ids => [id0, id1, ...])
 
-### Comments, Tags, and Users
+### Comments
 
-You can see a list of comments, tags, or users by id using
+You can see a list of comments by id or by betterif\_id using
 
     Betterific::Client.comments(:ids => [id0, id1, ...])
 
 and
+
+    Betterific::Client.comments(:betterif_ids => [id0, id1, ...])
+
+If using betterif\_ids, you may also specify the desired sort order, which can
+be either least\_recent or most\_recent
+
+    Betterific::Client.comments(:betterif_ids => [id0, id1, ...], :order => 'least_recent')
+
+### Tags and Users
+
+You can see a list of tags or users by id using
 
     Betterific::Client.tags(:ids => [id0, id1, ...])
 
