@@ -55,9 +55,13 @@ you can use
 
     Betterific::Client.betterifs(:ids => [id0, id1, ...])
 
-### Tags and Users
+### Comments, Tags, and Users
 
-You can see a list of tags or users by id using
+You can see a list of comments, tags, or users by id using
+
+    Betterific::Client.comments(:ids => [id0, id1, ...])
+
+and
 
     Betterific::Client.tags(:ids => [id0, id1, ...])
 

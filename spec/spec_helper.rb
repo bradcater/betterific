@@ -1,5 +1,6 @@
 require 'betterific'
 
+BETTERIFIC_COMMENT_ID = 121 #:nodoc
 BETTERIFIC_TAG_ID = 400937 #:nodoc
 BETTERIF_ID = 224 #:nodoc
 USER_ID = 2 #:nodoc
@@ -7,10 +8,12 @@ USER_ID = 2 #:nodoc
 SEARCH_KINDS = %w{betterifs tags users}.freeze #:nodoc
 
 def ensure_valid_api_response(resp, client_modjule, opts={})
-  if opts[:big]
-    resp.total_results.should > 10
-  else
-    resp.total_results.should >= (opts[:allow_empty] ? 0 : 1)
+  unless opts[:comments]
+    if opts[:big]
+      resp.total_results.should > 10
+    else
+      resp.total_results.should >= (opts[:allow_empty] ? 0 : 1)
+    end
   end
   if opts[:big]
     resp.num_results.should == 10
@@ -28,7 +31,7 @@ def ensure_valid_api_response(resp, client_modjule, opts={})
         resp.betterifs.first.tags.is_a?(Array).should == true
       elsif client_modjule == Betterific::ProtobufClient
         resp.betterifs.first.tags.is_a?(ProtocolBuffers::RepeatedField).should == true
-      else
+      elsif client_modjule != Betterific::Client
         raise "Invalid client_modjule #{client_modjule}"
       end
       if resp.betterifs.first.tags.size > 0
@@ -41,6 +44,23 @@ def ensure_valid_api_response(resp, client_modjule, opts={})
       end
     end
   end
+  if opts[:comments]
+    if opts[:big]
+      resp.comments.size.should == 10
+    else
+      resp.comments.size.should >= (opts[:allow_empty] ? 0 : 1)
+    end
+    if client_modjule == Betterific::JsonClient
+      resp.comments.is_a?(Array).should == true
+    elsif client_modjule == Betterific::ProtobufClient
+      resp.comments.is_a?(ProtocolBuffers::RepeatedField).should == true
+    elsif client_modjule != Betterific::Client
+      raise "Invalid client_modjule #{client_modjule}"
+    end
+    if client_modjule == Betterific::ProtobufClient && resp.comments.size > 0
+      resp.comments.first.is_a?(BetterIf::Comment).should == true
+    end
+  end
   if opts[:tags]
     if opts[:big]
       resp.tags.size.should == 10
@@ -51,7 +71,7 @@ def ensure_valid_api_response(resp, client_modjule, opts={})
       resp.tags.is_a?(Array).should == true
     elsif client_modjule == Betterific::ProtobufClient
       resp.tags.is_a?(ProtocolBuffers::RepeatedField).should == true
-    else
+    elsif client_modjule != Betterific::Client
       raise "Invalid client_modjule #{client_modjule}"
     end
     if client_modjule == Betterific::ProtobufClient && resp.tags.size > 0
@@ -68,7 +88,7 @@ def ensure_valid_api_response(resp, client_modjule, opts={})
       resp.users.is_a?(Array).should == true
     elsif client_modjule == Betterific::ProtobufClient
       resp.users.is_a?(ProtocolBuffers::RepeatedField).should == true
-    else
+    elsif client_modjule != Betterific::Client
       raise "Invalid client_modjule #{client_modjule}"
     end
     if client_modjule == Betterific::ProtobufClient && resp.users.size > 0
@@ -85,26 +105,33 @@ def client_test(modjule)
         [:most_popular, :most_recent].each do |filter|
           it "should load #{filter} betterifs" do
             resp = modjule.betterifs(page_params.merge(:filter => filter))
-            ensure_valid_api_response(resp, :betterifs => true, :big => page_params.empty?)
+            ensure_valid_api_response(resp, modjule, :betterifs => true, :big => page_params.empty?)
           end
         end
         it "should load betterifs via ids" do
           resp = modjule.betterifs(page_params.merge(:ids => BETTERIF_ID))
-          ensure_valid_api_response(resp, :betterifs => true, :allow_empty => !page_params.empty?)
+          ensure_valid_api_response(resp, modjule, :betterifs => true, :allow_empty => !page_params.empty?)
           if page_params.empty?
             resp.betterifs.first.id.should == BETTERIF_ID
           end
         end
+        it "should load comments via ids" do
+          resp = modjule.comments(page_params.merge(:ids => BETTERIFIC_COMMENT_ID))
+          ensure_valid_api_response(resp, modjule, :comments => true, :allow_empty => !page_params.empty?)
+          if page_params.empty?
+            resp.comments.first.id.should == BETTERIFIC_COMMENT_ID
+          end
+        end
         it "should load tags via ids" do
           resp = modjule.tags(page_params.merge(:ids => BETTERIFIC_TAG_ID))
-          ensure_valid_api_response(resp, :tags => true, :allow_empty => !page_params.empty?)
+          ensure_valid_api_response(resp, modjule, :tags => true, :allow_empty => !page_params.empty?)
           if page_params.empty?
             resp.tags.first.id.should == BETTERIFIC_TAG_ID
           end
         end
         it "should load users via ids" do
           resp = modjule.users(page_params.merge(:ids => USER_ID))
-          ensure_valid_api_response(resp, :users => true, :allow_empty => !page_params.empty?)
+          ensure_valid_api_response(resp, modjule, :users => true, :allow_empty => !page_params.empty?)
           if page_params.empty?
             resp.users.first.id.should == USER_ID
           end
@@ -115,7 +142,7 @@ def client_test(modjule)
             q = [random_query, random_query].join(' ')
             resp = modjule.search(page_params.merge(:namespace => kind, :q => q))
             resp.q.should == q
-            ensure_valid_api_response(resp.send(kind), kind.to_sym => true, :allow_empty => true)
+            ensure_valid_api_response(resp.send(kind), modjule, kind.to_sym => true, :allow_empty => true)
             if modjule == Betterific::JsonClient
               SEARCH_KINDS.each do |other_kind|
                 next if kind == other_kind
@@ -129,7 +156,7 @@ def client_test(modjule)
           resp = modjule.search(page_params.merge(:namespace => :all, :q => q))
           resp.q.should == q
           SEARCH_KINDS.each do |kind|
-            ensure_valid_api_response(resp.send(kind), kind.to_sym => true, :allow_empty => true)
+            ensure_valid_api_response(resp.send(kind), modjule, kind.to_sym => true, :allow_empty => true)
           end
         end
       end

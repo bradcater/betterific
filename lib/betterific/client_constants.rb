@@ -5,6 +5,8 @@ module Betterific
 
     # The base URL to GET betterifs.
     BETTERIFS_BASE_URL = "#{BASE_URL}/betterifs".freeze
+    # The base URL to GET comments.
+    COMMENTS_BASE_URL = "#{BASE_URL}/comments".freeze
     # The base URL to GET tags.
     TAGS_BASE_URL = "#{BASE_URL}/tags".freeze
     # The base URL to GET users.

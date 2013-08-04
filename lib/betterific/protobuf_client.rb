@@ -107,6 +107,20 @@ module Betterific
       end
     end
 
+    # Get a list of comments.
+    #
+    # ==== Parameters
+    #
+    # * +opts+ - {:ids => [id0, id1, ..., idx]} specifies the ids of the
+    #   comment(s) to return.
+    def self.comments(opts={})
+      if opts[:ids]
+        return get_protobuf("#{COMMENTS_BASE_URL}?comments[ids]=#{Array(opts[:ids]).map(&:to_s).join(',')}")
+      else
+        raise "No ids given."
+      end
+    end
+
     # Get a list of tags.
     #
     # ==== Parameters
