@@ -30,11 +30,11 @@ Betterific::JsonClient wraps the JSON response using
 [Hashie](https://github.com/intridea/hashie), so you may access the data using
 JSON object notation or via method calls. For example,
 
-    Betterific::JsonClient.betterifs(:id => [224])['total_results']
+    Betterific::JsonClient.betterifs(:ids => [224])['total_results']
 
 is equivalent to
 
-    Betterific::JsonClient.betterifs(:id => [224]).total_results
+    Betterific::JsonClient.betterifs(:ids => [224]).total_results
 
 However, it is recommended that you use the latter notation since it is
 compatible with Betterific::ProtobufClient, whereas the JSON object notation is
@@ -113,15 +113,15 @@ The Betterific::ProtobufClient responds to the same methods as the
 Betterific::JsonClient, so it's easy to switch between implementations at will.
 For example,
 
-    Betterific::JsonClient.users(:id => [2])
+    Betterific::JsonClient.users(:ids => [2])
 
 and
 
-    Betterific::ProtobufClient.users(:id => [2])
+    Betterific::ProtobufClient.users(:ids => [2])
 
 return the same data as
 
-    Betterific::Client.users(:id => [2])
+    Betterific::Client.users(:ids => [2])
 
 ## Contributing
 
